@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {getMimeType} from './mimes'
 
 function getContentFromDataUrl(dataURL: string) {
@@ -21,29 +20,23 @@ export async function fetchAsDataURL<T>(
     resolve((uri || url) as T)
   })
   try {
-    const res = await axios({
-      url,
-      method: 'get',
-      // responseType: 'arraybuffer',
-      // headers:{
-      //   origin: window.location.origin,
-      //   host: window.location.host,
-      //   // mode: 'no-cors',
-      //   'Access-Control-Allow-Origin': '*',
-      //  'Content-Type':  '*',
-      //   Connection: 'keep-alive',
-      //   'Access-Control-Allow-Headers': '*',
-      //   'Access-Control-Allow-Credentials': 'true'
-      // },
-      // credentials: "same-origin",
-      // xhr: {
-      //   withCredentials: true
-      // },
+    const res = await fetch(url,{
+      credentials: 'include',
+      headers:{
+        origin: window.location.origin,
+        host: window.location.host,
+        mode: 'no-cors',
+        'Access-Control-Allow-Origin': '*',
+        Connection: 'keep-alive',
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Credentials': 'true',
+        "Content-Type": "application/octet-stream"
+      },
     })
     if (res.status === 404) {
       return failPromise('')
     }
-    const blob = new Blob([res.data])
+    const blob = await res.blob()
     return new Promise<T>((resolve, reject) => {
       const reader = new FileReader()
       reader.onerror = reject
@@ -58,7 +51,6 @@ export async function fetchAsDataURL<T>(
       reader.readAsDataURL(blob)
     })
   } catch (e) {
-    console.warn(e);
     return failPromise()
   }
 }
