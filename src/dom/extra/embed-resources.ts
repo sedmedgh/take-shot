@@ -35,7 +35,7 @@ export async function embed(
       const content = await getContentFromUrl(resolvedURL)
       dataURL = makeDataUrl(content, contentType)
     } else {
-      dataURL = await resourceToDataURL(resolvedURL, contentType)
+      dataURL = await resourceToDataURL(resolvedURL, contentType) as string
     }
     return cssText.replace(toRegex(resourceURL), `$1${dataURL}$3`)
   } catch (error) {

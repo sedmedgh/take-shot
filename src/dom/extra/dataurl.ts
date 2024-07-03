@@ -1,5 +1,5 @@
-import axios from 'axios';
-import {getMimeType} from './mimes';
+import axios from 'axios'
+import {getMimeType} from './mimes'
 
 function getContentFromDataUrl(dataURL: string) {
   return dataURL.split(/,/)[1]
@@ -15,7 +15,7 @@ export function makeDataUrl(content: string, mimeType: string) {
 
 export async function fetchAsDataURL<T>(
   url: string,
-  process: (data: {result: string; res: Response}) => T
+  process: (data: {result: string; res: any}) => T
 ): Promise<T> {
   const failPromise =(uri?:string)=>  new Promise<T>((resolve) => {
     resolve((uri || url) as T)
