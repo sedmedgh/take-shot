@@ -119,9 +119,9 @@ export class DocumentCloner {
     // printDocument.close()
     injectCssRules(this.documentElement, options.cssRuleSelector)
   }
-  async embed(filterFontFace?: FilterFontFace) {
+  async embed(filterFontFace?: FilterFontFace, placeholder?: string) {
     await embedWebFonts(this.documentElement, filterFontFace)
-    await embedImages(this.documentElement)
+    await embedImages(this.documentElement, placeholder)
   }
 
   createElementClone<T extends HTMLElement | SVGElement>(node: T): HTMLElement | SVGElement {

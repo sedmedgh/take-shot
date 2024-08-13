@@ -24,6 +24,7 @@ export type Options = CloneOptions &
     cssRuleSelector?: CSSRuleSelector
     type?: ImageType
     quality?: number
+    imagePlaceholder?: string
   }
 
 const takeShot = (element: HTMLElement, options: Partial<Options> = {}): Promise<string | undefined> => {
@@ -97,7 +98,8 @@ const renderElement = async (element: HTMLElement, opts: Partial<Options>): Prom
   if (!clonedElement) {
     return Promise.reject(`Unable to find element in cloned iframe`)
   }
-  await documentCloner.embed(opts.filterFontFace)
+  const imagePlaceholder = opts.imagePlaceholder || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\' fill=\'none\' stroke-width=\'1.5\'%3E%3Crect width=\'36\' height=\'36\' fill=\'white\'/%3E%3Cpath d=\'M20 15.3333H20.0067M12 20.6667L15.3333 17.3333C15.952 16.738 16.7147 16.738 17.3333 17.3333L20.6667 20.6667M19.3333 19.3333L20 18.6667C20.6187 18.0713 21.3813 18.0713 22 18.6667L24 20.6667M12 14C12 13.4696 12.2107 12.9609 12.5858 12.5858C12.9609 12.2107 13.4696 12 14 12H22C22.5304 12 23.0391 12.2107 23.4142 12.5858C23.7893 12.9609 24 13.4696 24 14V22C24 22.5304 23.7893 23.0391 23.4142 23.4142C23.0391 23.7893 22.5304 24 22 24H14C13.4696 24 12.9609 23.7893 12.5858 23.4142C12.2107 23.0391 12 22.5304 12 22V14Z\' stroke=\'%233B3C40\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E';
+  await documentCloner.embed(opts.filterFontFace, imagePlaceholder)
   const {width, height, left, top} =
     isBodyElement(clonedElement) || isHTMLElement(clonedElement)
       ? parseDocumentSize(clonedElement.ownerDocument)

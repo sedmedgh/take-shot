@@ -68,32 +68,14 @@ function getCacheKey(url: string, contentType: string | undefined) {
   return contentType ? `[${contentType}]${key}` : key
 }
 
-const canvasTry = async(url:string)=> {
+const getPlaceholder = async(url:string, placeholder?: string)=> {
   const imgs =['png', 'jpg', 'jpeg', 'gif', 'tiff', 'svg', 'webp']
-  if (imgs.some(img => url.includes(img))){
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.onload = function () {
-        if (!canvas || !ctx) {
-          resolve(url)
-        }
-        canvas.height = img.height
-        canvas.width = img.width
-        ctx?.drawImage(img, 0, 0)
-        resolve(canvas.toDataURL(getMimeType(img.src) || 'image/png'))
-      }
-      img.onerror = () => {
-        resolve(url)
-      }
-      img.src = url
-    })
+  if (imgs.some(img => url.includes(img)) && placeholder){
+    return placeholder
   }
   return url
 }
-export async function resourceToDataURL(resourceUrl: string, contentType: string | undefined) {
+export async function resourceToDataURL(resourceUrl: string, contentType: string | undefined, placeholder?: string) {
   const cacheKey = getCacheKey(resourceUrl, contentType)
 
   if (cache[cacheKey] != null) {
@@ -110,7 +92,7 @@ export async function resourceToDataURL(resourceUrl: string, contentType: string
       return getContentFromDataUrl(result)
     })
     if (content.includes('http'))
-      return await canvasTry(content)
+      return await getPlaceholder(content, placeholder);
     dataURL = makeDataUrl(content, contentType!)
   } catch (error) {
     dataURL = ''
@@ -121,7 +103,7 @@ export async function resourceToDataURL(resourceUrl: string, contentType: string
     }
 
     if (msg) {
-      console.warn(msg)
+      console.warn(msg, 'error on get')
     }
   }
 
