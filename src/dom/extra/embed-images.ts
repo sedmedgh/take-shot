@@ -42,8 +42,10 @@ async function embedImageNode<T extends HTMLElement | SVGImageElement>(clonedNod
   await new Promise((resolve) => {
     clonedNode.onload = resolve;
     clonedNode.onerror = (e) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       clonedNode.src = placeholder || ''
-      console.log('e ===>', e);
+      console.log('onerror ===>', e);
     };
 
     const image = clonedNode as HTMLImageElement;

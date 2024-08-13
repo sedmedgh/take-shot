@@ -1,5 +1,3 @@
-import {getMimeType} from './mimes'
-
 function getContentFromDataUrl(dataURL: string) {
   return dataURL.split(/,/)[1]
 }
