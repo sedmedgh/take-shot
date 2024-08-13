@@ -7,6 +7,7 @@ import {RenderConfigurations, RenderOptions} from './render/canvas/canvas-render
 import {ForeignObjectRenderer} from './render/canvas/foreignobject-renderer'
 import {Context, ContextOptions} from './core/context'
 import {CSSRuleSelector, FilterFontFace} from './dom/extra/embed-webfonts'
+import {LoadingProps, useLoading} from './utils/loading';
 
 type ImageTypes = 'image/png' | 'image/jpeg' | 'image/webp'
 const imageMap: Record<string, ImageTypes> = {
@@ -25,6 +26,7 @@ export type Options = CloneOptions &
     type?: ImageType
     quality?: number
     imagePlaceholder?: string
+    loading?: LoadingProps
   }
 
 const takeShot = (element: HTMLElement, options: Partial<Options> = {}): Promise<string | undefined> => {
@@ -41,6 +43,8 @@ const renderElement = async (element: HTMLElement, opts: Partial<Options>): Prom
   if (!element || typeof element !== 'object') {
     return Promise.reject('Invalid element provided as first argument')
   }
+  const {removeLoading, insertLoading} = useLoading(element, opts.loading)
+  insertLoading()
   const ownerDocument = element.ownerDocument
 
   if (!ownerDocument) {
@@ -126,6 +130,7 @@ const renderElement = async (element: HTMLElement, opts: Partial<Options>): Prom
     const _quality = quality && typeof quality === 'number' && quality > 0.9 ? 0.9 : quality
     if (_type) return canvas.toDataURL(_type, _quality)
   }
+  removeLoading()
   return toImage(opts.type, opts.quality)
 }
 

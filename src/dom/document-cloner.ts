@@ -26,6 +26,7 @@ import {DebuggerType, isDebugging} from '../core/debugger'
 import {CSSRuleSelector, embedWebFonts, FilterFontFace, injectCssRules} from './extra/embed-webfonts'
 import {embedImages} from './extra/embed-images'
 import {toArray} from './extra/util'
+import {loadingId} from '../utils/loading';
 
 export interface CloneOptions {
   ignoreElements?: (element: Element) => boolean
@@ -266,7 +267,7 @@ export class DocumentCloner {
     if (!this.isVisible(child.style)) return
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    if (invalidTags.includes(child.tagName) || child.nodeType == 8) return
+    if (invalidTags.includes(child.tagName) || child.nodeType == 8 || child.id == loadingId) return
     if (
       !isElementNode(child) ||
       (!isScriptElement(child) &&
