@@ -262,6 +262,55 @@ export class DocumentCloner {
   }
 
   appendChildNode(clone: HTMLElement | SVGElement, child: Node, copyStyles: boolean): void {
+
+    const isVisibleInViewport = (element: HTMLElement) => {
+      if (!element.style) return true
+      const elementStyle = window.getComputedStyle(element);
+      //Particular cases when the element is not visible at all
+      if (
+          elementStyle.height == '0px' ||
+          elementStyle.display == 'none' ||
+          elementStyle.opacity == '0' ||
+          elementStyle.clipPath == 'circle(0px at 50% 50%)' ||
+          elementStyle.transform == 'scale(0)' ||
+          element.hasAttribute('hidden')
+      ) {
+        return false;
+      }
+      const rect = element.getBoundingClientRect();
+
+      //Overlapping strict check
+      const baseElementLeft = rect.left;
+      const baseElementTop = rect.top;
+
+      const elementFromStartingPoint = document.elementFromPoint(baseElementLeft,baseElementTop);
+
+      if (elementFromStartingPoint != null && !element.isSameNode(elementFromStartingPoint)) {
+        const elementZIndex = elementStyle.zIndex;
+        const elementOverlappingZIndex = window.getComputedStyle(elementFromStartingPoint).zIndex;
+        if (Number(elementZIndex) < Number(elementOverlappingZIndex)){
+          return false;
+        }
+
+        if (elementZIndex === '' && elementOverlappingZIndex === '') {
+          /**
+           If two positioned elements overlap without a z-index specified, the element
+           positioned last in the HTML code will be shown on top
+           **/
+          if (element.compareDocumentPosition(elementFromStartingPoint) & Node.DOCUMENT_POSITION_FOLLOWING) {
+            return false;
+          }
+        }
+      }
+      const res = (
+          rect.top >= 0 &&
+          rect.left >= 0 &&
+          rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+          rect.left <= (window.innerWidth || document.documentElement.clientWidth)
+      )
+      return res;
+    }
+
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (!this.isVisible(child.style)) return
@@ -275,7 +324,7 @@ export class DocumentCloner {
         (typeof this.options.ignoreElements !== 'function' || !this.options.ignoreElements(child)))
     ) {
       if (!isElementNode(child) || !isStyleElement(child)) {
-        clone.appendChild(this.cloneNode(child, copyStyles))
+        clone.appendChild(this.cloneNode(child, copyStyles, !isVisibleInViewport(child as HTMLElement)))
       }
     }
   }
@@ -293,7 +342,7 @@ export class DocumentCloner {
     }
   }
 
-  cloneNode(node: Node, copyStyles: boolean): Node {
+  cloneNode(node: Node, copyStyles: boolean, notAddChildren?: boolean): Node {
     if (isTextNode(node)) {
       return document.createTextNode(node.data)
     }
@@ -322,7 +371,7 @@ export class DocumentCloner {
         copyStyles = true
       }
 
-      if (!isVideoElement(node)) {
+      if (!isVideoElement(node) && !notAddChildren) {
         this.cloneChildNodes(node, clone, copyStyles)
       }
 
@@ -332,7 +381,7 @@ export class DocumentCloner {
       }
 
       const after = this.resolvePseudoContent(node, clone, styleAfter, PseudoElementType.AFTER)
-      if (after && this.isVisible(styleAfter)) {
+      if (after && this.isVisible(styleAfter) && !notAddChildren) {
         clone.appendChild(after)
       }
 
