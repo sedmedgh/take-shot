@@ -302,11 +302,12 @@ export class DocumentCloner {
           }
         }
       }
+      const start = getComputedStyle(element).direction === 'rtl' ? rect.right : rect.left
       const res = (
           rect.top >= 0 &&
-          rect.left >= 0 &&
+          start >= 0 &&
           rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-          rect.left <= (window.innerWidth || document.documentElement.clientWidth)
+          start <= (window.innerWidth || document.documentElement.clientWidth)
       )
       return res;
     }

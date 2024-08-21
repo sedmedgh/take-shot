@@ -6,7 +6,7 @@
   "module": "dist/take-shot.esm.js",
   "typings": "dist/types/index.d.ts",
   "browser": "dist/take-shot.js",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "author": {
     "name": "sedmedgh",
     "email": "sedmedgh@gmail.com"
